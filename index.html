@@ -1,1 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GIMA Ornamentos — Relatório de Performance</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222222;
+    --border: rgba(255,255,255,0.08);
+    --text: #f0f0f0;
+    --muted: #888;
+    --blue: #4a90d9;
+    --blue-dim: rgba(74,144,217,0.15);
+    --green: #6dab2f;
+    --green-dim: rgba(109,171,47,0.15);
+    --amber: #e8a020;
+    --amber-dim: rgba(232,160,32,0.12);
+    --radius: 12px;
+    --radius-sm: 8px;
+  }
+  body { background: var(--bg); color: var(--text); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; min-height: 100vh; }
+  .page { max-width: 960px; margin: 0 auto; padding: 40px 24px 60px; }
 
+  /* HEADER */
+  .header { display: flex; justify-content: space-between; align-items: flex-end; padding-bottom: 24px; border-bottom: 0.5px solid var(--border); margin-bottom: 32px; }
+  .eyebrow { font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+  .title { font-size: 28px; font-weight: 500; color: var(--text); }
+  .header-right { text-align: right; font-size: 12px; color: var(--muted); line-height: 1.8; }
+  .header-right strong { color: var(--text); font-weight: 500; }
+
+  /* KPI ROW */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .kpi { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 18px 20px; }
+  .kpi-label { font-size: 11px; color: var(--muted); letter-spacing: .04em; margin-bottom: 8px; }
+  .kpi-val { font-size: 28px; font-weight: 500; line-height: 1; color: var(--text); }
+  .kpi-sub { font-size: 11px; margin-top: 6px; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 500; }
+  .badge-green { background: var(--green-dim); color: var(--green); }
+  .badge-amber { background: var(--amber-dim); color: var(--amber); }
+  .badge-blue { background: var(--blue-dim); color: var(--blue); }
+
+  /* GRID */
+  .grid3 { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .panel { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 20px 22px; }
+  .p-title { font-size: 11px; font-weight: 500; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+
+  /* BARS */
+  .bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .bar-row:last-of-type { margin-bottom: 0; }
+  .bar-label { font-size: 12px; min-width: 44px; color: var(--text); }
+  .bar-track { flex: 1; height: 5px; background: var(--border); border-radius: 3px; overflow: hidden; }
+  .bar-fill { height: 100%; border-radius: 3px; background: var(--blue); }
+  .bar-pct { font-size: 11px; color: var(--muted); min-width: 32px; text-align: right; }
+
+  /* DIVIDER */
+  .divider { height: 0.5px; background: var(--border); margin: 14px 0; }
+
+  /* GENDER SPLIT */
+  .gender-split { display: flex; justify-content: space-around; padding-top: 4px; }
+  .gs-item { text-align: center; }
+  .gs-val { font-size: 20px; font-weight: 500; }
+  .gs-label { font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+  /* INSIGHTS */
+  .insight-list { list-style: none; }
+  .insight-list li { display: flex; gap: 10px; align-items: flex-start; padding: 9px 0; border-bottom: 0.5px solid var(--border); font-size: 13px; line-height: 1.55; color: var(--text); }
+  .insight-list li:last-child { border-bottom: none; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; margin-top: 5px; }
+
+  /* STEPS */
+  .step { display: flex; gap: 12px; align-items: flex-start; padding: 10px 0; border-bottom: 0.5px solid var(--border); }
+  .step:last-child { border-bottom: none; }
+  .step-num { width: 24px; height: 24px; border-radius: 50%; background: var(--blue-dim); color: var(--blue); font-size: 11px; font-weight: 600; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .step-text { font-size: 13px; line-height: 1.55; color: var(--text); }
+  .step-text strong { font-weight: 500; color: var(--text); }
+
+  /* CHART LEGEND */
+  .legend { display: flex; gap: 16px; margin-bottom: 10px; }
+  .leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--muted); }
+  .leg-sq { width: 9px; height: 9px; border-radius: 2px; }
+
+  /* FOOTER */
+  .footer { text-align: center; font-size: 11px; color: var(--muted); margin-top: 40px; padding-top: 20px; border-top: 0.5px solid var(--border); }
+
+  /* RESPONSIVE */
+  @media (max-width: 700px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .grid3 { grid-template-columns: 1fr; }
+    .grid2 { grid-template-columns: 1fr; }
+    .header { flex-direction: column; align-items: flex-start; gap: 12px; }
+    .header-right { text-align: left; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <div>
+      <div class="eyebrow">Relatório de performance · Meta Ads</div>
+      <div class="title">GIMA Ornamentos</div>
+    </div>
+    <div class="header-right">
+      Campanha: TOPO · ENG · VIDEO VIEW<br>
+      Período: 4 dias ativos<br>
+      <strong>Fábio Group Park</strong>
+    </div>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi">
+      <div class="kpi-label">Total investido</div>
+      <div class="kpi-val">R$ 99</div>
+      <div class="kpi-sub" style="color:var(--muted);">orçamento utilizado</div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Conversas iniciadas</div>
+      <div class="kpi-val">23</div>
+      <div class="kpi-sub"><span class="badge badge-green">em crescimento</span></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Custo por conversa</div>
+      <div class="kpi-val">R$ 4,32</div>
+      <div class="kpi-sub"><span class="badge badge-green">5,4% abaixo do mercado</span></div>
+    </div>
+    <div class="kpi">
+      <div class="kpi-label">Alcance total</div>
+      <div class="kpi-val">2.266</div>
+      <div class="kpi-sub" style="color:var(--muted);">pessoas únicas impactadas</div>
+    </div>
+  </div>
+
+  <div class="grid3">
+
+    <div class="panel">
+      <div class="p-title">Performance diária</div>
+      <div class="legend">
+        <div class="leg"><div class="leg-sq" style="background:var(--blue);"></div>Gasto R$</div>
+        <div class="leg"><div class="leg-sq" style="background:var(--green);"></div>Conversas</div>
+      </div>
+      <div style="position:relative;height:170px;">
+        <canvas id="cDaily"></canvas>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="p-title">Conversas por gênero</div>
+      <div style="position:relative;height:130px;display:flex;align-items:center;justify-content:center;">
+        <canvas id="cDonut"></canvas>
+      </div>
+      <div class="divider"></div>
+      <div class="gender-split">
+        <div class="gs-item">
+          <div class="gs-val" style="color:var(--blue);">R$ 3,49</div>
+          <div class="gs-label">CPR Mulheres</div>
+        </div>
+        <div style="width:0.5px;background:var(--border);"></div>
+        <div class="gs-item">
+          <div class="gs-val" style="color:var(--muted);">R$ 10,10</div>
+          <div class="gs-label">CPR Homens</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="p-title">Conversas por faixa etária</div>
+      <div class="bar-row"><span class="bar-label">55–64</span><div class="bar-track"><div class="bar-fill" style="width:100%;"></div></div><span class="bar-pct">8 · 42%</span></div>
+      <div class="bar-row"><span class="bar-label">35–44</span><div class="bar-track"><div class="bar-fill" style="width:50%;opacity:.8;"></div></div><span class="bar-pct">4 · 21%</span></div>
+      <div class="bar-row"><span class="bar-label">45–54</span><div class="bar-track"><div class="bar-fill" style="width:50%;opacity:.8;"></div></div><span class="bar-pct">4 · 21%</span></div>
+      <div class="bar-row"><span class="bar-label">65+</span><div class="bar-track"><div class="bar-fill" style="width:24%;opacity:.5;"></div></div><span class="bar-pct">2 · 11%</span></div>
+      <div class="bar-row"><span class="bar-label">25–34</span><div class="bar-track"><div class="bar-fill" style="width:12%;opacity:.3;"></div></div><span class="bar-pct">1 · 5%</span></div>
+      <div class="divider"></div>
+      <div style="font-size:11px;color:var(--muted);">Faixa 55–64 concentra <strong style="color:var(--text);">42%</strong> de todas as conversas</div>
+    </div>
+
+  </div>
+
+  <div class="grid2">
+
+    <div class="panel">
+      <div class="p-title">Leituras principais</div>
+      <ul class="insight-list">
+        <li><span class="dot" style="background:var(--green);"></span>CPR de R$ 4,32 já está 5,4% abaixo da mediana do mercado — campanha entrou com eficiência acima da média.</li>
+        <li><span class="dot" style="background:var(--green);"></span>Mulheres de 55–64 são o público mais responsivo: maior volume de conversas e menor custo por resultado.</li>
+        <li><span class="dot" style="background:var(--amber);"></span>Homens custam 3x mais por conversa (R$ 10,10 vs R$ 3,49). A verba entregue a esse segmento precisa ser revisada.</li>
+        <li><span class="dot" style="background:var(--blue);"></span>Frequência de exposição ainda baixa — o público ainda está sendo apresentado à marca. Conversas tendem a crescer com continuidade.</li>
+      </ul>
+    </div>
+
+    <div class="panel">
+      <div class="p-title">Próximos passos recomendados</div>
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-text"><strong>Ajustar distribuição de verba por gênero</strong> — priorizar mulheres 35–64 com orçamento dedicado ou exclusão do público masculino do conjunto atual.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-text"><strong>Criar conjunto de remarketing (MOFU)</strong> — quem já viu o vídeo precisa de um segundo anúncio mais direto, com chamada clara para ação.</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-text"><strong>Desenvolver criativo para mulheres 55–64</strong> — linguagem e visual direcionados a esse perfil tendem a reduzir ainda mais o CPR.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    Relatório gerado por Fábio Group Park · GIMA Ornamentos · Meta Ads
+  </div>
+
+</div>
+
+<script>
+const dias = ['24/03','25/03','26/03','27/03','28/03','29/03'];
+const gasto = [12.59,12.93,19.93,16.71,11.92,13.06];
+const convs = [1,5,2,4,2,5];
+
+new Chart(document.getElementById('cDaily'), {
+  data: {
+    labels: dias,
+    datasets: [
+      { type:'bar', data: gasto, backgroundColor:'rgba(74,144,217,0.18)', borderColor:'#4a90d9', borderWidth:1, borderRadius:3, yAxisID:'y' },
+      { type:'line', data: convs, borderColor:'#6dab2f', backgroundColor:'rgba(109,171,47,0.08)', pointRadius:3, pointBackgroundColor:'#6dab2f', tension:0.35, yAxisID:'y2', borderWidth:2 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { position:'left', ticks:{ font:{size:10}, color:'#666', callback: v => 'R$'+v }, grid:{ color:'rgba(255,255,255,0.05)' } },
+      y2: { position:'right', ticks:{ font:{size:10}, color:'#6dab2f', stepSize:1 }, grid:{ display:false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('cDonut'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Mulheres (84%)', 'Homens (16%)'],
+    datasets: [{ data: [16, 5], backgroundColor: ['#4a90d9','#444'], borderWidth: 0, hoverOffset: 4 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false, cutout: '68%',
+    plugins: {
+      legend: { display: true, position: 'bottom', labels: { font:{size:11}, color:'#888', boxWidth:10, padding:10 } }
+    }
+  }
+});
+</script>
+</body>
+</html>
