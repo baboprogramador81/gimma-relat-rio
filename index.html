@@ -1,377 +1,377 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GIMA Ornamentos — Relatório de Performance</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --bg:#0f0f0f;--surface:#1a1a1a;
-  --border:rgba(255,255,255,0.08);
-  --text:#f0f0f0;--muted:#777;
-  --blue:#4a90d9;--blue-dim:rgba(74,144,217,0.14);
-  --green:#6dab2f;--green-dim:rgba(109,171,47,0.14);
-  --amber:#e8a020;--amber-dim:rgba(232,160,32,0.13);
-  --radius:12px;
-}
-body{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh;}
-.page{max-width:1000px;margin:0 auto;padding:40px 24px 60px;}
-.header{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:22px;border-bottom:0.5px solid var(--border);margin-bottom:26px;}
-.eyebrow{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:5px;}
-.title{font-size:26px;font-weight:500;}
-.header-right{text-align:right;font-size:12px;color:var(--muted);line-height:1.9;}
-.header-right strong{color:var(--text);font-weight:500;}
-.filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:22px;padding:13px 18px;background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);}
-.filter-label{font-size:11px;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-right:2px;}
-.btn-group{display:flex;gap:6px;}
-.btn{background:transparent;border:0.5px solid var(--border);color:var(--muted);font-size:12px;padding:5px 12px;border-radius:6px;cursor:pointer;transition:all .15s;font-family:inherit;}
-.btn:hover{border-color:rgba(255,255,255,0.2);color:var(--text);}
-.btn.active{background:var(--blue-dim);border-color:var(--blue);color:var(--blue);}
-.filter-sep{width:0.5px;height:20px;background:var(--border);margin:0 4px;}
-.date-inputs{display:flex;align-items:center;gap:8px;}
-.date-inputs input[type="date"]{background:transparent;border:0.5px solid var(--border);color:var(--text);font-size:12px;padding:5px 10px;border-radius:6px;cursor:pointer;color-scheme:dark;font-family:inherit;}
-.date-inputs input[type="date"]:focus{outline:none;border-color:var(--blue);}
-.date-sep{font-size:11px;color:var(--muted);}
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:11px;margin-bottom:11px;}
-.kpi{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:16px 18px;}
-.kpi-label{font-size:11px;color:var(--muted);letter-spacing:.03em;margin-bottom:7px;}
-.kpi-val{font-size:24px;font-weight:500;line-height:1;}
-.kpi-sub{font-size:11px;margin-top:5px;color:var(--muted);}
-.badge{display:inline-block;padding:2px 8px;border-radius:6px;font-size:10px;font-weight:500;}
-.bg{background:var(--green-dim);color:var(--green);}
-.ba{background:var(--amber-dim);color:var(--amber);}
-.bb{background:var(--blue-dim);color:var(--blue);}
-.grid3{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:14px;margin-bottom:14px;}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
-.panel{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--radius);padding:18px 20px;}
-.p-title{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
-.p-note{font-size:10px;color:var(--muted);margin-top:-9px;margin-bottom:12px;font-style:italic;}
-.bar-row{display:flex;align-items:center;gap:9px;margin-bottom:9px;}
-.bar-row:last-of-type{margin-bottom:0;}
-.bar-label{font-size:12px;min-width:44px;}
-.bar-track{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
-.bar-fill{height:100%;border-radius:3px;background:var(--blue);}
-.bar-pct{font-size:11px;color:var(--muted);min-width:52px;text-align:right;}
-.divider{height:0.5px;background:var(--border);margin:13px 0;}
-.gender-split{display:flex;justify-content:space-around;padding-top:4px;}
-.gs-item{text-align:center;}
-.gs-val{font-size:18px;font-weight:500;}
-.gs-label{font-size:10px;color:var(--muted);margin-top:2px;}
-.stat-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:12px;}
-.stat-row:last-child{border-bottom:none;}
-.stat-label{color:var(--muted);}
-.stat-val{font-weight:500;}
-.insight-list{list-style:none;}
-.insight-list li{display:flex;gap:9px;align-items:flex-start;padding:8px 0;border-bottom:0.5px solid var(--border);font-size:12.5px;line-height:1.55;}
-.insight-list li:last-child{border-bottom:none;}
-.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;}
-.step{display:flex;gap:11px;align-items:flex-start;padding:9px 0;border-bottom:0.5px solid var(--border);}
-.step:last-child{border-bottom:none;}
-.step-num{width:22px;height:22px;border-radius:50%;background:var(--blue-dim);color:var(--blue);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;}
-.step-text{font-size:12.5px;line-height:1.55;}
-.step-text strong{font-weight:500;}
-.legend{display:flex;gap:14px;margin-bottom:9px;}
-.leg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted);}
-.leg-sq{width:9px;height:9px;border-radius:2px;}
-.footer{text-align:center;font-size:11px;color:var(--muted);margin-top:40px;padding-top:18px;border-top:0.5px solid var(--border);}
-@media(max-width:700px){
-  .kpi-row{grid-template-columns:repeat(2,1fr);}
-  .grid3,.grid2{grid-template-columns:1fr;}
-  .header{flex-direction:column;align-items:flex-start;gap:10px;}
-  .header-right{text-align:left;}
-  .filter-bar{flex-direction:column;align-items:flex-start;}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Painel Atendimento PRO</title>
+  <style>
+    :root {
+      --bg-1: #1e3c72;
+      --bg-2: #2a5298;
+      --card: rgba(255, 255, 255, 0.12);
+      --card-border: rgba(255, 255, 255, 0.2);
+      --text: #ffffff;
+      --muted: #d7e3ff;
+      --focus: #90caf9;
+      --ok: #22c55e;
+      --danger: #ef4444;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: linear-gradient(135deg, var(--bg-1), var(--bg-2));
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .wrapper {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand img {
+      width: 200px;
+      max-width: 45vw;
+      height: auto;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 6px;
+    }
+
+    .brand h1 {
+      font-size: 1.2rem;
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+
+    .topbar-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .glass {
+      background: var(--card);
+      border: 1px solid var(--card-border);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+    }
+
+    h2 {
+      margin: 0 0 6px;
+      font-size: 0.95rem;
+      letter-spacing: 0.03em;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .checklist label {
+      display: block;
+      margin-bottom: 6px;
+      cursor: pointer;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    input, textarea, button {
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font: inherit;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 8px;
+      background: rgba(255, 255, 255, 0.95);
+      color: #0f172a;
+    }
+
+    textarea {
+      min-height: 70px;
+      resize: vertical;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: var(--focus);
+      box-shadow: 0 0 0 2px rgba(144, 202, 249, 0.3);
+    }
+
+    button {
+      min-width: 80px;
+      padding: 8px 10px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.18);
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      transition: 0.2s ease;
+    }
+
+    button:hover { background: rgba(255, 255, 255, 0.28); }
+
+    button:active { transform: translateY(1px); }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.24);
+      border-color: rgba(239, 68, 68, 0.5);
+    }
+
+    .status {
+      margin-top: 12px;
+      padding: 10px;
+      border-radius: 10px;
+      background: rgba(0, 0, 0, 0.25);
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .status.ok { color: #bbf7d0; border: 1px solid rgba(34, 197, 94, 0.5); }
+    .status.error { color: #fecaca; border: 1px solid rgba(239, 68, 68, 0.5); }
+
+    .footnote {
+      margin-top: 10px;
+      font-size: 0.8rem;
+      color: var(--muted);
+      opacity: 0.9;
+    }
+
+    @media (max-width: 980px) {
+      .container { grid-template-columns: 1fr; }
+      .field-row { grid-template-columns: 1fr; }
+      button { width: 100%; }
+    }
+  </style>
 </head>
 <body>
-<div class="page">
-
-  <div class="header">
-    <div>
-      <div class="eyebrow">Relatório de performance · Meta Ads</div>
-      <div class="title">GIMA Ornamentos</div>
-    </div>
-    <div class="header-right">
-      Campanha: TOPO · ENG · VIDEO VIEW<br>
-      <span id="periodo-header">—</span><br>
-      <strong>Fábio Group Park</strong>
-    </div>
-  </div>
-
-  <div class="filter-bar">
-    <span class="filter-label">Período</span>
-    <div class="btn-group">
-      <button class="btn active" id="btn-all" onclick="setPreset('all',this)">Tudo</button>
-      <button class="btn" onclick="setPreset('7',this)">Últimos 7 dias</button>
-      <button class="btn" onclick="setPreset('14',this)">Últimos 14 dias</button>
-    </div>
-    <div class="filter-sep"></div>
-    <div class="date-inputs">
-      <input type="date" id="dtInicio" onchange="setCustom()">
-      <span class="date-sep">→</span>
-      <input type="date" id="dtFim" onchange="setCustom()">
-    </div>
-  </div>
-
-  <div class="kpi-row">
-    <div class="kpi">
-      <div class="kpi-label">Total investido</div>
-      <div class="kpi-val" id="kpi-gasto">—</div>
-      <div class="kpi-sub">no período selecionado</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Conversas iniciadas</div>
-      <div class="kpi-val" id="kpi-conv">—</div>
-      <div class="kpi-sub"><span class="badge bg">em crescimento</span></div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Custo por conversa</div>
-      <div class="kpi-val" id="kpi-cpr">—</div>
-      <div class="kpi-sub"><span class="badge bg">abaixo do mercado</span></div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Alcance total</div>
-      <div class="kpi-val" id="kpi-alcance">—</div>
-      <div class="kpi-sub">pessoas únicas impactadas</div>
-    </div>
-  </div>
-
-  <div class="kpi-row" style="margin-bottom:22px;">
-    <div class="kpi">
-      <div class="kpi-label">Impressões</div>
-      <div class="kpi-val" id="kpi-imp">—</div>
-      <div class="kpi-sub">exibições totais</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">CPM médio</div>
-      <div class="kpi-val" id="kpi-cpm">—</div>
-      <div class="kpi-sub">custo por mil impressões</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Visitas ao perfil</div>
-      <div class="kpi-val">188</div>
-      <div class="kpi-sub"><span class="badge bb">total da campanha</span></div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">Novos seguidores</div>
-      <div class="kpi-val">23</div>
-      <div class="kpi-sub"><span class="badge bg">gerados pela campanha</span></div>
-    </div>
-  </div>
-
-  <div class="grid3">
-    <div class="panel">
-      <div class="p-title">Performance diária</div>
-      <div class="legend">
-        <div class="leg"><div class="leg-sq" style="background:var(--blue);"></div>Gasto R$</div>
-        <div class="leg"><div class="leg-sq" style="background:var(--green);"></div>Conversas</div>
+  <main class="wrapper">
+    <header class="topbar">
+      <div class="brand">
+        <img src="brasilseg_tagline_branco.png" alt="BrasilSeg" onerror="this.style.display='none'">
+        <h1>Painel Atendimento PRO</h1>
       </div>
-      <div style="position:relative;height:180px;">
-        <canvas id="cDaily"></canvas>
+      <div class="topbar-actions">
+        <button type="button" onclick="copiarTudo()">Copiar resumo</button>
+        <button type="button" class="btn-danger" onclick="limparCampos()">Limpar tudo</button>
       </div>
-    </div>
+    </header>
 
-    <div class="panel">
-      <div class="p-title">Conversas por gênero</div>
-      <div class="p-note">total da campanha</div>
-      <div style="position:relative;height:130px;">
-        <canvas id="cDonut"></canvas>
-      </div>
-      <div class="divider"></div>
-      <div class="gender-split">
-        <div class="gs-item">
-          <div class="gs-val" style="color:var(--blue);">R$ 3,26</div>
-          <div class="gs-label">CPR Mulheres</div>
+    <section class="container">
+      <div class="col">
+        <div class="glass checklist">
+          <h2>Confirmação IDPOS</h2>
+          <label><input id="chk_nome" type="checkbox"> Nome</label>
+          <label><input id="chk_cpf" type="checkbox"> CPF</label>
+          <label><input id="chk_nasc" type="checkbox"> Data Nascimento</label>
         </div>
-        <div style="width:0.5px;background:var(--border);"></div>
-        <div class="gs-item">
-          <div class="gs-val" style="color:var(--muted);">R$ 4,77</div>
-          <div class="gs-label">CPR Homens</div>
+
+        <div class="glass checklist">
+          <h2>Atualização Cadastral</h2>
+          <label><input id="chk_tel" type="checkbox"> Telefone</label>
+          <label><input id="chk_email" type="checkbox"> Email</label>
+        </div>
+
+        <div class="glass checklist">
+          <h2>Não esquece</h2>
+          <label><input id="chk_kit" type="checkbox"> KIT SINISTRO</label>
+          <label><input id="chk_manual" type="checkbox"> MANUAL RESÍDUOS</label>
+          <label><input id="chk_nps" type="checkbox"> NPS</label>
+          <label><input id="chk_prazo" type="checkbox"> PRAZO</label>
+          <label><input id="chk_itens" type="checkbox"> ITENS PESSOAIS</label>
         </div>
       </div>
-    </div>
 
-    <div class="panel">
-      <div class="p-title">Conversas por faixa etária</div>
-      <div class="p-note">total da campanha</div>
-      <div class="bar-row"><span class="bar-label">55–64</span><div class="bar-track"><div class="bar-fill" style="width:100%;"></div></div><span class="bar-pct">16 · 31%</span></div>
-      <div class="bar-row"><span class="bar-label">45–54</span><div class="bar-track"><div class="bar-fill" style="width:94%;opacity:.9;"></div></div><span class="bar-pct">15 · 29%</span></div>
-      <div class="bar-row"><span class="bar-label">35–44</span><div class="bar-track"><div class="bar-fill" style="width:56%;opacity:.75;"></div></div><span class="bar-pct">9 · 17%</span></div>
-      <div class="bar-row"><span class="bar-label">65+</span><div class="bar-track"><div class="bar-fill" style="width:50%;opacity:.6;"></div></div><span class="bar-pct">8 · 15%</span></div>
-      <div class="bar-row"><span class="bar-label">25–34</span><div class="bar-track"><div class="bar-fill" style="width:25%;opacity:.4;"></div></div><span class="bar-pct">4 · 8%</span></div>
-      <div class="divider"></div>
-      <div style="font-size:11px;color:var(--muted);">Faixas 45–64 concentram <strong style="color:var(--text);">60%</strong> das conversas</div>
-    </div>
-  </div>
+      <div class="col">
+        <div class="glass">
+          <h2>Segurado</h2>
+          <div class="field-row"><input id="nome" data-label="Nome" placeholder="Nome completo"><button onclick="copy('nome')">Copiar</button></div>
+          <div class="field-row"><input id="cpf" data-label="CPF" placeholder="000.000.000-00"><button onclick="copy('cpf')">Copiar</button></div>
+          <div class="field-row"><input id="nasc" data-label="Data de nascimento" placeholder="dd/mm/aaaa"><button onclick="copy('nasc')">Copiar</button></div>
+          <div class="field-row"><input id="tel" data-label="Telefone" placeholder="(00) 00000-0000"><button onclick="copy('tel')">Copiar</button></div>
+          <div class="field-row"><input id="email" data-label="Email" type="email" placeholder="email@dominio.com"><button onclick="copy('email')">Copiar</button></div>
+        </div>
 
-  <div class="grid2">
-    <div class="panel">
-      <div class="p-title">Métricas de engajamento</div>
-      <div class="stat-row"><span class="stat-label">CTR médio</span><span class="stat-val">5,42% <span class="badge bg" style="font-size:9px;">acima da média</span></span></div>
-      <div class="stat-row"><span class="stat-label">Frequência média</span><span class="stat-val">1,06x por pessoa</span></div>
-      <div class="stat-row"><span class="stat-label">CPM médio</span><span class="stat-val">R$ 34,80</span></div>
-      <div class="stat-row"><span class="stat-label">Reproduções 50% do vídeo</span><span class="stat-val">681</span></div>
-      <div class="stat-row"><span class="stat-label">Visitas ao perfil Instagram</span><span class="stat-val">188</span></div>
-      <div class="stat-row"><span class="stat-label">Novos seguidores</span><span class="stat-val">23</span></div>
-    </div>
+        <div class="glass">
+          <h2>Funcionário BB</h2>
+          <div class="field-row"><input id="funcnome" data-label="Nome funcionário" placeholder="Nome do funcionário"><button onclick="copy('funcnome')">Copiar</button></div>
+          <div class="field-row"><input id="matricula" data-label="Matrícula" placeholder="Matrícula"><button onclick="copy('matricula')">Copiar</button></div>
+          <div class="field-row"><input id="prefixo" data-label="Prefixo" placeholder="Prefixo"><button onclick="copy('prefixo')">Copiar</button></div>
+          <div class="field-row"><input id="email2" data-label="Email funcionário" type="email" placeholder="email@bb.com"><button onclick="copy('email2')">Copiar</button></div>
+          <div class="field-row"><input id="tel2" data-label="Telefone funcionário" placeholder="(00) 00000-0000"><button onclick="copy('tel2')">Copiar</button></div>
+        </div>
 
-    <div class="panel">
-      <div class="p-title">Evolução de conversas</div>
-      <div style="position:relative;height:170px;">
-        <canvas id="cConvLine"></canvas>
+        <div class="glass">
+          <h2>Terceiro</h2>
+          <div class="field-row"><input id="terc" data-label="Nome terceiro" placeholder="Nome"><button onclick="copy('terc')">Copiar</button></div>
+          <div class="field-row"><input id="terccpf" data-label="CPF terceiro" placeholder="000.000.000-00"><button onclick="copy('terccpf')">Copiar</button></div>
+          <div class="field-row"><input id="terctel" data-label="Telefone terceiro" placeholder="(00) 00000-0000"><button onclick="copy('terctel')">Copiar</button></div>
+          <div class="field-row"><input id="tercemail" data-label="Email terceiro" type="email" placeholder="email@dominio.com"><button onclick="copy('tercemail')">Copiar</button></div>
+        </div>
+
+        <div class="glass">
+          <h2>Endereço risco</h2>
+          <div class="field-row"><input id="end" data-label="Endereço" placeholder="Rua, número, complemento"><button onclick="copy('end')">Copiar</button></div>
+          <div class="field-row"><input id="cep" data-label="CEP" placeholder="00000-000"><button onclick="copy('cep')">Copiar</button></div>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <div class="grid2">
-    <div class="panel">
-      <div class="p-title">Leituras principais</div>
-      <ul class="insight-list">
-        <li><span class="dot" style="background:var(--green);"></span>52 conversas em 14 dias com CPR médio de R$ 3,61 — desempenho consistente e acima da média do mercado.</li>
-        <li><span class="dot" style="background:var(--green);"></span>Mulheres respondem por 79% das conversas com CPR de R$ 3,26 — 46% mais barato que homens (R$ 4,77).</li>
-        <li><span class="dot" style="background:var(--green);"></span>CTR de 5,42% indica criativo capturando atenção com eficiência acima do padrão.</li>
-        <li><span class="dot" style="background:var(--amber);"></span>Frequência de 1,06x — a maioria do público ainda viu o anúncio apenas uma vez.</li>
-        <li><span class="dot" style="background:var(--amber);"></span>681 pessoas viram 50% do vídeo sem converter — público quente disponível para remarketing.</li>
-        <li><span class="dot" style="background:var(--blue);"></span>23 seguidores novos e 188 visitas ao perfil mostram interesse orgânico além das conversas.</li>
-      </ul>
-    </div>
+      <div class="col">
+        <div class="glass">
+          <h2>Evento</h2>
+          <div class="field-row"><input id="evento" data-label="Evento" placeholder="Descrição do evento"><button onclick="copy('evento')">Copiar</button></div>
+          <div class="field-row"><input id="data" data-label="Data do evento" placeholder="dd/mm/aaaa"><button onclick="copy('data')">Copiar</button></div>
+        </div>
 
-    <div class="panel">
-      <div class="p-title">Próximos passos recomendados</div>
-      <div class="step">
-        <div class="step-num">1</div>
-        <div class="step-text"><strong>Ativar remarketing para os 681 que viram 50% do vídeo</strong> — público mais quente disponível agora, com anúncio de oferta direta.</div>
+        <div class="glass">
+          <h2>Ocorrência</h2>
+          <div class="field-row"><textarea id="oc1" data-label="Ocorrência 1" placeholder="Detalhe da ocorrência"></textarea><button onclick="copy('oc1')">Copiar</button></div>
+          <div class="field-row"><textarea id="oc2" data-label="Ocorrência 2" placeholder="Detalhe complementar"></textarea><button onclick="copy('oc2')">Copiar</button></div>
+          <div class="field-row"><textarea id="oc3" data-label="Ocorrência 3" placeholder="Conclusão"></textarea><button onclick="copy('oc3')">Copiar</button></div>
+        </div>
+
+        <div class="glass">
+          <h2>Sinistro</h2>
+          <div class="field-row"><input id="sin1" data-label="Sinistro 1" placeholder="Campo 1"><button onclick="copy('sin1')">Copiar</button></div>
+          <div class="field-row"><input id="sin2" data-label="Sinistro 2" placeholder="Campo 2"><button onclick="copy('sin2')">Copiar</button></div>
+          <div class="field-row"><input id="sin3" data-label="Sinistro 3" placeholder="Campo 3"><button onclick="copy('sin3')">Copiar</button></div>
+          <div class="field-row"><input type="datetime-local" id="datahora" data-label="Data e hora"></div>
+        </div>
+
+        <div id="status" class="status" role="status" aria-live="polite">Pronto para copiar e preencher.</div>
+        <p class="footnote">Os dados são salvos automaticamente no navegador (localStorage).</p>
       </div>
-      <div class="step">
-        <div class="step-num">2</div>
-        <div class="step-text"><strong>Aumentar frequência de exposição</strong> — com 1,06x por pessoa, parte do público ainda não fixou a marca. Meta: 2–3x.</div>
-      </div>
-      <div class="step">
-        <div class="step-num">3</div>
-        <div class="step-text"><strong>Escalar verba para mulheres 45–64</strong> — CPR abaixo de R$ 3,50 e 60% das conversas nessa faixa. Segmento mais rentável da campanha.</div>
-      </div>
-      <div class="step">
-        <div class="step-num">4</div>
-        <div class="step-text"><strong>Otimizar perfil no Instagram</strong> — 188 visitas indicam curiosidade além da conversa. Bio e destaques podem converter esse tráfego.</div>
-      </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
-  <div class="footer">
-    Relatório gerado por Fábio Group Park · GIMA Ornamentos · Meta Ads · mar 23 – abr 6, 2026
-  </div>
+  <script>
+    const selectors = 'input[id], textarea[id]';
 
-</div>
-<script>
-/* ============================================================
-   DADOS DA CAMPANHA — ATUALIZE AQUI
-   Para adicionar um novo dia, copie uma linha e preencha.
-   { data:'AAAA-MM-DD', gasto:0.00, conversas:0, alcance:0, impressoes:0 }
-   ============================================================ */
-const DADOS=[
-  {data:'2026-03-24',gasto:12.59,conversas:1, alcance:283, impressoes:300},
-  {data:'2026-03-25',gasto:12.93,conversas:5, alcance:238, impressoes:256},
-  {data:'2026-03-26',gasto:19.93,conversas:2, alcance:435, impressoes:469},
-  {data:'2026-03-27',gasto:16.71,conversas:4, alcance:449, impressoes:487},
-  {data:'2026-03-28',gasto:11.92,conversas:2, alcance:469, impressoes:482},
-  {data:'2026-03-29',gasto:13.06,conversas:5, alcance:392, impressoes:425},
-  {data:'2026-03-30',gasto:20.11,conversas:4, alcance:862, impressoes:897},
-  {data:'2026-03-31',gasto:22.64,conversas:7, alcance:808, impressoes:872},
-  {data:'2026-04-01',gasto:12.76,conversas:6, alcance:376, impressoes:405},
-  {data:'2026-04-02',gasto:8.78, conversas:3, alcance:299, impressoes:335},
-  {data:'2026-04-03',gasto:9.13, conversas:4, alcance:291, impressoes:321},
-  {data:'2026-04-04',gasto:14.67,conversas:5, alcance:460, impressoes:499},
-  {data:'2026-04-05',gasto:12.27,conversas:3, alcance:365, impressoes:401},
-  {data:'2026-04-06',gasto:0.00, conversas:1, alcance:0,   impressoes:0  },
-  /* Adicione novos dias abaixo:
-  {data:'2026-04-07',gasto:0.00,conversas:0,alcance:0,impressoes:0},
-  */
-];
-/* ============================================================ */
+    function showStatus(message, type = '') {
+      const box = document.getElementById('status');
+      box.textContent = message;
+      box.className = `status ${type}`.trim();
+    }
 
-let cD=null,cC=null;
-function fmt(n){return n.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
-function pd(s){const[y,m,d]=s.split('-').map(Number);return new Date(y,m-1,d);}
-function filt(a,b){return DADOS.filter(d=>{const dt=pd(d.data);return dt>=a&&dt<=b;});}
+    async function copy(id) {
+      const el = document.getElementById(id);
+      if (!el) return;
 
-function render(d){
-  const tG=d.reduce((s,r)=>s+r.gasto,0);
-  const tC=d.reduce((s,r)=>s+r.conversas,0);
-  const tA=d.reduce((s,r)=>s+r.alcance,0);
-  const tI=d.reduce((s,r)=>s+r.impressoes,0);
-  document.getElementById('kpi-gasto').textContent='R$ '+fmt(tG);
-  document.getElementById('kpi-conv').textContent=tC;
-  document.getElementById('kpi-cpr').textContent=tC>0?'R$ '+fmt(tG/tC):'—';
-  document.getElementById('kpi-alcance').textContent=tA.toLocaleString('pt-BR');
-  document.getElementById('kpi-imp').textContent=tI.toLocaleString('pt-BR');
-  document.getElementById('kpi-cpm').textContent=tI>0?'R$ '+fmt((tG/tI)*1000):'—';
+      const value = (el.value || '').trim();
+      const label = el.dataset.label || id;
 
-  const lbs=d.map(r=>{const[,m,dy]=r.data.split('-');return dy+'/'+m;});
-  const gs=d.map(r=>+r.gasto.toFixed(2));
-  const cs=d.map(r=>r.conversas);
+      if (!value) {
+        showStatus(`Nada para copiar em: ${label}.`, 'error');
+        return;
+      }
 
-  if(cD){cD.data.labels=lbs;cD.data.datasets[0].data=gs;cD.data.datasets[1].data=cs;cD.update();}
-  else{cD=new Chart(document.getElementById('cDaily'),{
-    data:{labels:lbs,datasets:[
-      {type:'bar', data:gs,backgroundColor:'rgba(74,144,217,0.16)',borderColor:'#4a90d9',borderWidth:1,borderRadius:3,yAxisID:'y'},
-      {type:'line',data:cs,borderColor:'#6dab2f',backgroundColor:'rgba(109,171,47,0.07)',pointRadius:3,pointBackgroundColor:'#6dab2f',tension:0.35,yAxisID:'y2',borderWidth:2}
-    ]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{
-        x:{ticks:{font:{size:9},color:'#555',maxRotation:45},grid:{color:'rgba(255,255,255,0.04)'}},
-        y:{position:'left',ticks:{font:{size:9},color:'#555',callback:v=>'R$'+v},grid:{color:'rgba(255,255,255,0.04)'}},
-        y2:{position:'right',ticks:{font:{size:9},color:'#6dab2f',stepSize:1},grid:{display:false}}
-      }}
-  });}
+      try {
+        await navigator.clipboard.writeText(value);
+        showStatus(`Copiado: ${label}.`, 'ok');
+      } catch {
+        showStatus('Não foi possível copiar automaticamente. Verifique permissões do navegador.', 'error');
+      }
+    }
 
-  if(cC){cC.data.labels=lbs;cC.data.datasets[0].data=cs;cC.update();}
-  else{cC=new Chart(document.getElementById('cConvLine'),{
-    type:'line',
-    data:{labels:lbs,datasets:[{data:cs,borderColor:'#6dab2f',backgroundColor:'rgba(109,171,47,0.1)',pointRadius:3,pointBackgroundColor:'#6dab2f',tension:0.35,borderWidth:2,fill:true}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{
-        x:{ticks:{font:{size:9},color:'#555',maxRotation:45},grid:{color:'rgba(255,255,255,0.04)'}},
-        y:{ticks:{font:{size:9},color:'#555',stepSize:1},grid:{color:'rgba(255,255,255,0.04)'}}
-      }}
-  });}
+    async function copiarTudo() {
+      const fields = [...document.querySelectorAll(selectors)];
+      const lines = fields
+        .map((el) => {
+          const value = (el.value || '').trim();
+          if (!value) return null;
+          const label = el.dataset.label || el.id;
+          return `${label}: ${value}`;
+        })
+        .filter(Boolean);
 
-  if(d.length>0){
-    const f=s=>s.split('-').reverse().slice(0,2).join('/');
-    const d1=f(d[0].data),d2=f(d[d.length-1].data);
-    document.getElementById('periodo-header').textContent=d1===d2?d1:d1+' – '+d2;
-  }
-}
+      if (!lines.length) {
+        showStatus('Preencha ao menos um campo para copiar o resumo.', 'error');
+        return;
+      }
 
-function applyFilter(a,b){
-  document.getElementById('dtInicio').value=a.toISOString().split('T')[0];
-  document.getElementById('dtFim').value=b.toISOString().split('T')[0];
-  render(filt(a,b));
-}
-function setPreset(p,btn){
-  document.querySelectorAll('.btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const dts=DADOS.map(d=>pd(d.data)).sort((a,b)=>a-b);
-  const fim=dts[dts.length-1];
-  let ini;
-  if(p==='all'){ini=dts[0];}else{ini=new Date(fim);ini.setDate(fim.getDate()-(parseInt(p)-1));}
-  applyFilter(ini,fim);
-}
-function setCustom(){
-  document.querySelectorAll('.btn').forEach(b=>b.classList.remove('active'));
-  const a=document.getElementById('dtInicio').value,b=document.getElementById('dtFim').value;
-  if(a&&b)render(filt(pd(a),pd(b)));
-}
+      const resumo = lines.join('\n');
+      try {
+        await navigator.clipboard.writeText(resumo);
+        showStatus('Resumo completo copiado com sucesso.', 'ok');
+      } catch {
+        showStatus('Não foi possível copiar o resumo completo.', 'error');
+      }
+    }
 
-new Chart(document.getElementById('cDonut'),{
-  type:'doughnut',
-  data:{labels:['Mulheres (79%)','Homens (21%)'],datasets:[{data:[41,11],backgroundColor:['#4a90d9','#333'],borderWidth:0,hoverOffset:4}]},
-  options:{responsive:true,maintainAspectRatio:false,cutout:'68%',
-    plugins:{legend:{display:true,position:'bottom',labels:{font:{size:11},color:'#777',boxWidth:10,padding:10}}}}
-});
+    function persistirCampo(el) {
+      localStorage.setItem(`painel:${el.id}`, el.type === 'checkbox' ? String(el.checked) : el.value);
+    }
 
-setPreset('all',document.getElementById('btn-all'));
-</script>
+    function restaurarCampos() {
+      document.querySelectorAll('input[id], textarea[id], input[type="checkbox"]').forEach((el) => {
+        const key = `painel:${el.id}`;
+        const saved = localStorage.getItem(key);
+        if (saved === null) return;
+        if (el.type === 'checkbox') {
+          el.checked = saved === 'true';
+        } else {
+          el.value = saved;
+        }
+      });
+    }
+
+    function limparCampos() {
+      document.querySelectorAll('input[id], textarea[id], input[type="checkbox"]').forEach((el) => {
+        if (el.type === 'checkbox') {
+          el.checked = false;
+        } else {
+          el.value = '';
+        }
+      });
+
+      Object.keys(localStorage)
+        .filter((key) => key.startsWith('painel:'))
+        .forEach((key) => localStorage.removeItem(key));
+
+      showStatus('Campos e dados locais removidos.', 'ok');
+    }
+
+    document.querySelectorAll('input[id], textarea[id], input[type="checkbox"]').forEach((el) => {
+      el.addEventListener('input', () => persistirCampo(el));
+      if (el.type === 'checkbox') {
+        el.addEventListener('change', () => persistirCampo(el));
+      }
+    });
+
+    restaurarCampos();
+  </script>
 </body>
 </html>
